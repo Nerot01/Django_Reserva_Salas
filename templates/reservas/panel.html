@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Panel - Reserva de Salas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 mt-4">
+    <h2 class="fw-bold text-dark m-0">Salas Disponibles</h2>
+    <div class="badge bg-primary px-3 py-2 fs-6 rounded-pill shadow-sm">
+        <i class="bi bi-person-fill"></i> ¡Hola, {{ user.username }}!
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+    <!-- Sala 1 -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden transition-hover">
+            <div class="card-header bg-primary text-white fw-bold py-3">
+                Sala de Conferencias A
+            </div>
+            <div class="card-body p-4">
+                <h5 class="card-title fw-bold text-dark mb-3"><span class="badge bg-light text-dark border">Capacidad: 20 personas</span></h5>
+                <p class="card-text text-secondary">Equipada con proyector 4K, pizarra inteligente y sistema de audio envolvente. Ideal para presentaciones importantes y asambleas.</p>
+            </div>
+            <div class="card-footer bg-white border-0 text-center pb-4 pt-0">
+                <button class="btn btn-outline-primary w-100 fw-bold rounded-3">Reservar Ahora</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sala 2 -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden transition-hover">
+            <div class="card-header bg-success text-white fw-bold py-3">
+                Sala de Reuniones B
+            </div>
+            <div class="card-body p-4">
+                <h5 class="card-title fw-bold text-dark mb-3"><span class="badge bg-light text-dark border">Capacidad: 8 personas</span></h5>
+                <p class="card-text text-secondary">Ambiente íntimo con mesa redonda y TV de 65" para videoconferencias. Perfecta para equipos de trabajo pequeños y juntas directivas.</p>
+            </div>
+            <div class="card-footer bg-white border-0 text-center pb-4 pt-0">
+                <button class="btn btn-outline-success w-100 fw-bold rounded-3">Reservar Ahora</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sala 3 -->
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden transition-hover">
+            <div class="card-header bg-warning text-dark fw-bold py-3">
+                Espacio Creativo C
+            </div>
+            <div class="card-body p-4">
+                <h5 class="card-title fw-bold text-dark mb-3"><span class="badge bg-light text-dark border">Capacidad: 12 personas</span></h5>
+                <p class="card-text text-secondary">Múltiples pizarras blancas, asientos cómodos (puffs) y ambiente relajado diseñado para sesiones de lluvia de ideas o talleres.</p>
+            </div>
+            <div class="card-footer bg-white border-0 text-center pb-4 pt-0">
+                <button class="btn btn-outline-warning text-dark w-100 fw-bold rounded-3">Reservar Ahora</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .transition-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .transition-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
+{% endblock %}
+{% endblock %}

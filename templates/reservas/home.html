@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Reserva de Salas{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-primary text-white rounded-4 shadow-lg" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+    <div class="container-fluid py-5 text-center">
+        <h1 class="display-4 fw-bold mb-3">Bienvenido a Reserva de Salas</h1>
+        <p class="col-md-8 mx-auto fs-4 mb-4">
+            Gestiona, organiza y reserva espacios de trabajo de manera rápida y sencilla. ¡Todo lo que necesitas en un solo lugar!
+        </p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-light btn-lg px-5 py-3 fw-bold rounded-pill shadow-sm">Comenzar Ahora</a>
+        {% else %}
+            <a href="{% url 'panel' %}" class="btn btn-light btn-lg px-5 py-3 fw-bold rounded-pill shadow-sm">Ir a mi Panel</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row text-center mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="p-4 bg-white rounded shadow-sm h-100">
+            <h3 class="fw-bold text-primary mb-3">Rápido</h3>
+            <p class="text-muted">Reserva tu sala en menos de 2 minutos. Nuestra interfaz está diseñada para ahorrarte tiempo.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="p-4 bg-white rounded shadow-sm h-100">
+            <h3 class="fw-bold text-primary mb-3">Seguro</h3>
+            <p class="text-muted">Tus reservas y datos están protegidos. Accede únicamente a las salas que te corresponden.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="p-4 bg-white rounded shadow-sm h-100">
+            <h3 class="fw-bold text-primary mb-3">Confiable</h3>
+            <p class="text-muted">Nunca más un doble agendamiento. El sistema mantiene todo sincronizado en tiempo real.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
