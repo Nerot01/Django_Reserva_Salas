@@ -24,19 +24,19 @@
                 </h5>
                 <p class="card-text text-secondary">{{ sala.descripcion }}</p>
                 
-                <h6 class="fw-bold mt-4 mb-2">Horarios Reservados:</h6>
+                <h6 class="fw-bold mt-4 mb-2">Reservas Registradas:</h6>
                 {% if sala.reservas.all %}
                     <ul class="list-group list-group-flush mb-3">
                     {% for reserva in sala.reservas.all %}
                         <li class="list-group-item px-0 py-2 border-bottom-0 text-muted">
                             <span class="badge bg-danger rounded-pill me-2">Ocupado</span>
-                            <strong>{{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}</strong> 
+                            <strong>{{ reserva.fecha|date:"d/m/Y" }} &bull; {{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}</strong> 
                             por <em>{{ reserva.usuario.username }}</em>
                         </li>
                     {% endfor %}
                     </ul>
                 {% else %}
-                    <p class="text-success small"><i class="bi bi-check-circle"></i> Libre todo el día</p>
+                    <p class="text-success small"><i class="bi bi-check-circle"></i> Sin reservas registradas</p>
                 {% endif %}
             </div>
             <div class="card-footer bg-white border-0 text-center pb-4 pt-0">
@@ -76,6 +76,7 @@
                     <td>{{ reserva.fecha|date:"d/m/Y" }}</td>
                     <td>{{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}</td>
                     <td>
+                        <a href="{% url 'reserva_editar' reserva.id %}" class="btn btn-sm btn-outline-primary me-2">Editar</a>
                         <form method="post" action="{% url 'cancelar_reserva' reserva.id %}" class="d-inline" onsubmit="return confirm('¿Estás seguro de que quieres cancelar esta reserva?');">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>

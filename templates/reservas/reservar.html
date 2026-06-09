@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Reservar {{ sala.nombre }} - Reserva de Salas{% endblock %}
+{% block title %}{% if es_edicion %}Editar Reserva de {% else %}Reservar {% endif %}{{ sala.nombre }} - Reserva de Salas{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center mt-4 mb-5">
     <div class="col-md-8 col-lg-6">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold m-0 text-dark">Reservar Sala</h2>
+            <h2 class="fw-bold m-0 text-dark">{% if es_edicion %}Editar Reserva{% else %}Reservar Sala{% endif %}</h2>
             <a href="{% url 'panel' %}" class="btn btn-outline-secondary rounded-pill px-4">Volver al Panel</a>
         </div>
         
@@ -35,24 +35,193 @@
                             {{ form.fecha }}
                             {% if form.fecha.errors %}<div class="text-danger small mt-1">{{ form.fecha.errors }}</div>{% endif %}
                         </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.hora_inicio.id_for_label }}" class="form-label fw-bold text-dark">{{ form.hora_inicio.label }}</label>
-                            {{ form.hora_inicio }}
-                            {% if form.hora_inicio.errors %}<div class="text-danger small mt-1">{{ form.hora_inicio.errors }}</div>{% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.hora_fin.id_for_label }}" class="form-label fw-bold text-dark">{{ form.hora_fin.label }}</label>
-                            {{ form.hora_fin }}
-                            {% if form.hora_fin.errors %}<div class="text-danger small mt-1">{{ form.hora_fin.errors }}</div>{% endif %}
+                        
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-dark mb-1">Selecciona un Bloque Horario</label>
+                            <p class="text-muted small mb-3">Solo puedes seleccionar bloques de 40 (o 35) minutos disponibles. Los bloques ocupados se mostrarán en rojo y no podrán ser seleccionados.</p>
+                            
+                            {{ form.bloque }}
+                            {% if form.bloque.errors %}<div class="text-danger small mt-1 mb-3">{{ form.bloque.errors }}</div>{% endif %}
+                            
+                            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mt-1" id="bloques-container">
+                                {% for val, label in bloques %}
+                                    <div class="col">
+                                        <div class="card h-100 text-center time-block border-2 available" data-bloque="{{ val }}" id="block-{{ forloop.counter }}">
+                                            <div class="card-body p-3 d-flex flex-column justify-content-center align-items-center">
+                                                <span class="fw-bold mb-2 fs-6 block-time">{{ label }}</span>
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill block-status-badge">Disponible</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                     
                     <div class="d-grid mt-5">
-                        <button type="submit" class="btn btn-success btn-lg fw-bold rounded-pill shadow-sm">Confirmar Reserva</button>
+                        <button type="submit" class="btn btn-success btn-lg fw-bold rounded-pill shadow-sm" id="btn-submit">{% if es_edicion %}Guardar Cambios{% else %}Confirmar Reserva{% endif %}</button>
                     </div>
                 </form>
             </div>
         </div>
+
+        
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .time-block {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        background-color: #ffffff;
+    }
+    .time-block:hover:not(.occupied):not(.selected) {
+        border-color: #0d6efd;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+    .time-block.occupied {
+        background-color: #f8f9fa;
+        border-color: #ea868f; /* border bootstrap danger-subtle */
+        color: #adb5bd;
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+    .time-block.selected {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3) !important;
+        transform: translateY(-1px) !important;
+    }
+    .time-block.selected .block-time {
+        color: #ffffff !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaInput = document.getElementById('id_fecha');
+        const bloqueInput = document.getElementById('id_bloque');
+        const timeBlocks = document.querySelectorAll('.time-block');
+        const excluirReservaId = "{{ reserva.id|default:'' }}";
+        
+        if (!fechaInput || !bloqueInput) {
+            return;
+        }
+
+        // Cargar las reservas ocupadas al cambiar la fecha
+        fechaInput.addEventListener('change', fetchOcupados);
+        fechaInput.addEventListener('input', fetchOcupados);
+        
+        // Inicializar
+        if (fechaInput.value) {
+            fetchOcupados();
+        }
+        
+        // Manejar el click en los bloques
+        timeBlocks.forEach(block => {
+            if (block.dataset.listenerAttached) {
+                return;
+            }
+            block.dataset.listenerAttached = "true";
+            
+            block.addEventListener('click', function() {
+                if (block.classList.contains('occupied')) {
+                    return; // No hacer nada si esta ocupado
+                }
+                
+                const isAlreadySelected = block.classList.contains('selected');
+                
+                // Deseleccionar todos los bloques primero
+                timeBlocks.forEach(b => {
+                    b.classList.remove('selected');
+                    const badge = b.querySelector('.block-status-badge');
+                    if (badge && !b.classList.contains('occupied')) {
+                        badge.className = 'badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill block-status-badge';
+                        badge.textContent = 'Disponible';
+                    }
+                });
+                
+                if (isAlreadySelected) {
+                    // Si ya estaba seleccionado, se deselecciona
+                    bloqueInput.value = '';
+                } else {
+                    // Seleccionar este bloque
+                    block.classList.add('selected');
+                    const badge = block.querySelector('.block-status-badge');
+                    if (badge) {
+                        badge.className = 'badge bg-light text-primary border px-2 py-1 rounded-pill block-status-badge';
+                        badge.textContent = 'Seleccionado';
+                    }
+                    bloqueInput.value = block.dataset.bloque || '';
+                }
+            });
+        });
+        
+        function fetchOcupados() {
+            const fecha = fechaInput.value;
+            if (!fecha) return;
+            
+            let url = `{% url 'reservas_ocupadas_api' %}?sala_id={{ sala.id }}&fecha=${fecha}`;
+            if (excluirReservaId) {
+                url += `&excluir_reserva_id=${excluirReservaId}`;
+            }
+            
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const ocupados = data.ocupados || [];
+                    const selectedVal = bloqueInput.value;
+                    let selectedStillAvailable = false;
+                    
+                    timeBlocks.forEach(block => {
+                        const val = block.dataset.bloque;
+                        const badge = block.querySelector('.block-status-badge');
+                        
+                        if (!badge) return;
+                        
+                        if (ocupados.includes(val)) {
+                            block.classList.add('occupied');
+                            block.classList.remove('available', 'selected');
+                            badge.className = 'badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill block-status-badge';
+                            badge.textContent = 'Ocupado';
+                        } else {
+                            block.classList.remove('occupied');
+                            block.classList.add('available');
+                            
+                            if (selectedVal && val === selectedVal) {
+                                block.classList.add('selected');
+                                badge.className = 'badge bg-light text-primary border px-2 py-1 rounded-pill block-status-badge';
+                                badge.textContent = 'Seleccionado';
+                                selectedStillAvailable = true;
+                            } else {
+                                block.classList.remove('selected');
+                                badge.className = 'badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill block-status-badge';
+                                badge.textContent = 'Disponible';
+                            }
+                        }
+                    });
+                    
+                    if (selectedVal && !selectedStillAvailable) {
+                        bloqueInput.value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al consultar disponibilidad:', error);
+                });
+        }
+    });
+</script>
 {% endblock %}

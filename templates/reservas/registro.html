@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Entrar - Reserva de Salas{% endblock %}
+{% block title %}Registrarse - Reserva de Salas{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
@@ -8,8 +8,8 @@
         <div class="card shadow-lg border-0 rounded-4 mt-4">
             <div class="card-body p-5">
                 <div class="text-center mb-4">
-                    <h2 class="fw-bold text-primary">Iniciar Sesión</h2>
-                    <p class="text-muted">Ingresa a tu cuenta para gestionar tus reservas</p>
+                    <h2 class="fw-bold text-success">Crear Cuenta</h2>
+                    <p class="text-muted">Regístrate para poder reservar salas en el sistema</p>
                 </div>
                 
                 <form method="post">
@@ -17,7 +17,7 @@
                     
                     {% if form.errors %}
                         <div class="alert alert-danger rounded-3">
-                            Usuario o contraseña incorrectos. Por favor intenta de nuevo.
+                            Por favor corrige los errores abajo para registrarte.
                         </div>
                     {% endif %}
                     
@@ -25,18 +25,27 @@
                     <div class="mb-4">
                         <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-secondary">{{ field.label }}</label>
                         {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in field.errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if field.help_text %}
+                            <small class="form-text text-muted d-block mt-1">{{ field.help_text|safe }}</small>
+                        {% endif %}
                     </div>
                     {% endfor %}
                     
                     <div class="d-grid gap-2 mt-5">
-                        <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold">Entrar al Sistema</button>
+                        <button type="submit" class="btn btn-success btn-lg rounded-3 fw-bold">Registrarse</button>
                     </div>
                 </form>
                 
                 <div class="text-center mt-4">
-                    <p class="mb-0 text-secondary">¿No tienes una cuenta? <a href="{% url 'registro' %}" class="fw-bold text-decoration-none text-primary">Regístrate</a></p>
+                    <p class="mb-0 text-secondary">¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="fw-bold text-decoration-none text-success">Inicia Sesión</a></p>
                 </div>
-
             </div>
         </div>
     </div>
@@ -46,7 +55,8 @@
 <style>
     /* Estilos para que los inputs por defecto de Django se vean como los de Bootstrap */
     form input[type="text"], 
-    form input[type="password"] {
+    form input[type="password"],
+    form input[type="email"] {
         display: block;
         width: 100%;
         padding: 0.75rem 1rem;
@@ -61,11 +71,17 @@
         transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
     }
     form input[type="text"]:focus, 
-    form input[type="password"]:focus {
-        border-color: #86b7fe;
+    form input[type="password"]:focus,
+    form input[type="email"]:focus {
+        border-color: #198754;
         background-color: #fff;
         outline: 0;
-        box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+        box-shadow: 0 0 0 0.25rem rgba(25,135,84,.25);
+    }
+    .form-text ul {
+        padding-left: 1rem;
+        margin-bottom: 0;
+        font-size: 0.85rem;
     }
 </style>
 {% endblock %}

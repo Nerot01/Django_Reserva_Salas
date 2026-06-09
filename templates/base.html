@@ -24,6 +24,11 @@
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
+                        {% if user.is_staff or user.is_superuser %}
+                            <li class="nav-item">
+                                <a class="nav-link text-white fw-semibold me-2" href="{% url 'salas_admin_list' %}">Administrar Salas</a>
+                            </li>
+                        {% endif %}
                         <li class="nav-item">
                             <a class="nav-link text-white" href="{% url 'panel' %}">Mi Panel</a>
                         </li>
@@ -36,7 +41,10 @@
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="{% url 'home' %}">Inicio</a>
+                            <a class="nav-link text-white align-self-center mt-1" href="{% url 'home' %}">Inicio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white align-self-center mt-1" href="{% url 'registro' %}">Registrarse</a>
                         </li>
                         <li class="nav-item">
                             <a class="btn btn-primary ms-2" href="{% url 'login' %}">Entrar</a>
