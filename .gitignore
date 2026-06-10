@@ -4,7 +4,6 @@ env/
 .env
 
 # Archivos de la base de datos de desarrollo
-db.sqlite3
 
 # Compilados de Python
 __pycache__/
